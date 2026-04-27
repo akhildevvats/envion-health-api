@@ -3,8 +3,15 @@ const fetch = require('node-fetch');
 const cors = require('cors');
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type']
+}));
+
 app.use(express.json());
+
+app.options('/api/chat', cors());
 
 app.post('/api/chat', async (req, res) => {
   try {
@@ -27,9 +34,10 @@ app.post('/api/chat', async (req, res) => {
     const reply = data.content?.map(b => b.text || '').join('') || 'Sorry, try again.';
     res.json({ reply });
   } catch (err) {
+    console.error('Error:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
