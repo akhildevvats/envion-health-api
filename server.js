@@ -10,7 +10,6 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
 app.options('/api/chat', cors());
 
 app.post('/api/chat', async (req, res) => {
@@ -31,11 +30,15 @@ app.post('/api/chat', async (req, res) => {
       })
     });
     const data = await response.json();
+    console.log('Anthropic response:', JSON.stringify(data));
+    if(data.error) {
+      return res.status(500).json({ error: data.error, reply: 'Sorry, try again.' });
+    }
     const reply = data.content?.map(b => b.text || '').join('') || 'Sorry, try again.';
     res.json({ reply });
   } catch (err) {
     console.error('Error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, reply: 'Sorry, try again.' });
   }
 });
 
